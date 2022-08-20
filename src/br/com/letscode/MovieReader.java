@@ -33,7 +33,6 @@ public class MovieReader {
                         List<String> movieData = List.of(line.split(CSV_SEPARATOR_REGEX, -1));
                         try {
                             Movie movie = Movie.fromCsvFileEntry(movieData);
-                            System.out.println(movie);
                             set.add(movie);
                         } catch (RuntimeException e) {
                             // skip entry
