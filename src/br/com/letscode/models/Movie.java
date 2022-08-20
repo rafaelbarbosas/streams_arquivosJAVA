@@ -3,6 +3,7 @@ package br.com.letscode.models;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Year;
+import java.util.List;
 import java.util.Set;
 
 public class Movie {
@@ -247,5 +248,49 @@ public class Movie {
             this.validate();
             return movie;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Movie fromCsvFileEntry(List<String> movieData) {
+        MoviesFilePropertiesEnum type;
+        Builder builder = new Builder();
+
+        type = MoviesFilePropertiesEnum.RANK;
+        builder.withRank((UnsignedInteger) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.TITLE;
+        builder.withTitle((String) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.GENRE;
+        builder.withGenre((Set<String>) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.DESCRIPTION;
+        builder.withDescription((String) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.DIRECTORS;
+        builder.withDirectors((Set<String>) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.ACTORS;
+        builder.withActors((Set<String>) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.YEAR;
+        builder.withYear((Year) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.RUNTIME;
+        builder.withRuntime((Duration) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.RATING;
+        builder.withRating((Float) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.VOTES;
+        builder.withVotes((UnsignedInteger) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.REVENUE;
+        builder.withRevenue((BigDecimal) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.METASCORE;
+        builder.withMetaScore((MetaScore) type.convert(movieData.get(type.getIndex())));
+
+        return builder.build();
     }
 }
