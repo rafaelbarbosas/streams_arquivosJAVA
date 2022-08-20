@@ -44,6 +44,12 @@ public enum MoviesFilePropertiesEnum {
         if (text == null || text.strip().length() == 0) {
             return null;
         }
+        if (text.charAt(0) == '"') {
+            text = text.substring(1);
+        }
+        if (text.charAt(text.length() - 1) == '"') {
+            text = text.substring(0, text.length() - 1);
+        }
         return conversor.apply(text);
     }
 

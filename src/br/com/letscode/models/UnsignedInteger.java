@@ -42,6 +42,16 @@ public class UnsignedInteger extends Number {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        return Integer.valueOf(this.value).equals((Integer) obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return value;
+    }
+
+    @Override
     public String toString() {
         return "UnsignedInteger [value=" + value + "]";
     }

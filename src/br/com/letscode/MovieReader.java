@@ -31,8 +31,13 @@ public class MovieReader {
             fileReader.skip(skipHeader ? 1 : 0)
                     .forEach(line -> {
                         List<String> movieData = List.of(line.split(CSV_SEPARATOR_REGEX, -1));
-                        Movie movie = Movie.fromCsvFileEntry(movieData);
-                        set.add(movie);
+                        try {
+                            Movie movie = Movie.fromCsvFileEntry(movieData);
+                            System.out.println(movie);
+                            set.add(movie);
+                        } catch (RuntimeException e) {
+                            // skip entry
+                        }
                     });
         } catch (IOException e) {
             throw new RuntimeException(String.format(FILE_OPENING_EXCEPTION_MSG, filePath.toString()), e);
