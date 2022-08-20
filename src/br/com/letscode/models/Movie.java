@@ -3,15 +3,15 @@ package br.com.letscode.models;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Year;
-import java.util.List;
+import java.util.Set;
 
 public class Movie {
     private UnsignedInteger rank;
     private String title;
-    private List<String> genre;
+    private Set<String> genre;
     private String description;
-    private List<String> director;
-    private List<String> actors;
+    private Set<String> directors;
+    private Set<String> actors;
     private Year year;
     private Duration runtime;
     private Float rating;
@@ -19,7 +19,8 @@ public class Movie {
     private BigDecimal revenue;
     private MetaScore metascore;
 
-    // Getters
+    public static final BigDecimal REVENUE_MULTIPLIER = BigDecimal.valueOf(1000000);
+
     public UnsignedInteger getRank() {
         return rank;
     }
@@ -28,7 +29,7 @@ public class Movie {
         return title;
     }
 
-    public List<String> getGenre() {
+    public Set<String> getGenre() {
         return genre;
     }
 
@@ -36,11 +37,11 @@ public class Movie {
         return description;
     }
 
-    public List<String> getDirector() {
-        return director;
+    public Set<String> getDirectors() {
+        return directors;
     }
 
-    public List<String> getActors() {
+    public Set<String> getActors() {
         return actors;
     }
 
@@ -68,9 +69,107 @@ public class Movie {
         return metascore;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((actors == null) ? 0 : actors.hashCode());
+        result = prime * result + ((description == null) ? 0 : description.hashCode());
+        result = prime * result + ((directors == null) ? 0 : directors.hashCode());
+        result = prime * result + ((genre == null) ? 0 : genre.hashCode());
+        result = prime * result + ((metascore == null) ? 0 : metascore.hashCode());
+        result = prime * result + ((rank == null) ? 0 : rank.hashCode());
+        result = prime * result + ((rating == null) ? 0 : rating.hashCode());
+        result = prime * result + ((revenue == null) ? 0 : revenue.hashCode());
+        result = prime * result + ((runtime == null) ? 0 : runtime.hashCode());
+        result = prime * result + ((title == null) ? 0 : title.hashCode());
+        result = prime * result + ((votes == null) ? 0 : votes.hashCode());
+        result = prime * result + ((year == null) ? 0 : year.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Movie other = (Movie) obj;
+        if (actors == null) {
+            if (other.actors != null)
+                return false;
+        } else if (!actors.equals(other.actors))
+            return false;
+        if (description == null) {
+            if (other.description != null)
+                return false;
+        } else if (!description.equals(other.description))
+            return false;
+        if (directors == null) {
+            if (other.directors != null)
+                return false;
+        } else if (!directors.equals(other.directors))
+            return false;
+        if (genre == null) {
+            if (other.genre != null)
+                return false;
+        } else if (!genre.equals(other.genre))
+            return false;
+        if (metascore == null) {
+            if (other.metascore != null)
+                return false;
+        } else if (!metascore.equals(other.metascore))
+            return false;
+        if (rank == null) {
+            if (other.rank != null)
+                return false;
+        } else if (!rank.equals(other.rank))
+            return false;
+        if (rating == null) {
+            if (other.rating != null)
+                return false;
+        } else if (!rating.equals(other.rating))
+            return false;
+        if (revenue == null) {
+            if (other.revenue != null)
+                return false;
+        } else if (!revenue.equals(other.revenue))
+            return false;
+        if (runtime == null) {
+            if (other.runtime != null)
+                return false;
+        } else if (!runtime.equals(other.runtime))
+            return false;
+        if (title == null) {
+            if (other.title != null)
+                return false;
+        } else if (!title.equals(other.title))
+            return false;
+        if (votes == null) {
+            if (other.votes != null)
+                return false;
+        } else if (!votes.equals(other.votes))
+            return false;
+        if (year == null) {
+            if (other.year != null)
+                return false;
+        } else if (!year.equals(other.year))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Movie [actors=" + actors + ", description=" + description + ", directors=" + directors + ", genre="
+                + genre + ", metascore=" + metascore + ", rank=" + rank + ", rating=" + rating + ", revenue=" + revenue
+                + ", runtime=" + runtime + ", title=" + title + ", votes=" + votes + ", year=" + year + "]";
+    }
+
     public static class Builder {
         private Movie movie;
-        
+
         public Builder() {
             movie = new Movie();
         }
@@ -85,7 +184,7 @@ public class Movie {
             return this;
         }
 
-        public Builder withGenre(List<String> genre) {
+        public Builder withGenre(Set<String> genre) {
             movie.genre = genre;
             return this;
         }
@@ -95,12 +194,12 @@ public class Movie {
             return this;
         }
 
-        public Builder withDirector(List<String> director) {
-            movie.director = director;
+        public Builder withDirectors(Set<String> directors) {
+            movie.directors = directors;
             return this;
         }
 
-        public Builder withActors(List<String> actors) {
+        public Builder withActors(Set<String> actors) {
             movie.actors = actors;
             return this;
         }
