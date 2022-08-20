@@ -21,5 +21,4 @@ public class MetaScore extends UnsignedInteger {
     public String toString() {
         return "MetaScore [value=" + super.getValue() + "]";
     }
-
 }
