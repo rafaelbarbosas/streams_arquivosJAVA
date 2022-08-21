@@ -2,11 +2,13 @@ package br.com.letscode;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import br.com.letscode.models.Movie;
 import br.com.letscode.utils.FileUtils;
@@ -14,34 +16,29 @@ import br.com.letscode.utils.FileUtils;
 public class App {
 
     private static final String MOVIES_FOLDER_PATH = FileUtils.getFullFilePath("data");
-    private static final String FIRST_FILE_NAME = "movies1.csv";
+    private static final List<String> FILES_WITH_HEADER = List.of("movies1.csv");
 
-    private static final String THREAD_INTERRUPTED_EXCEPTION = "Ocorreu um erro na execução do programa. Por favor, tente novamente.";
+    // if you want to use all available processors, use this value
+    // Runtime.getRuntime().availableProcessors();
+    private static final int THREAD_POOL_SIZE = 4;
 
     public static void main(String[] args) throws Exception {
         Set<Movie> moviesSet = Collections.synchronizedSet(new HashSet<>());
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
         // load files into set
         File directory = new File(MOVIES_FOLDER_PATH);
-        List<Thread> tasks = new ArrayList<>();
         FileUtils.listFilesInDirectory(directory).stream()
                 .forEach(fileName -> {
                     String filePath = MOVIES_FOLDER_PATH + "/" + fileName;
-                    Thread thread = new Thread(() -> MovieReader.getInstance().loadFilesInSet(moviesSet,
+                    executor.execute(() -> MovieReader.getInstance().loadFilesInSet(moviesSet,
                             Paths.get(filePath),
-                            fileName.equals(FIRST_FILE_NAME)));
-                    tasks.add(thread);
-                    thread.start();
+                            FILES_WITH_HEADER.contains(fileName)));
                 });
 
         // wait for all threads to finish
-        tasks.stream().forEach(thread -> {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(THREAD_INTERRUPTED_EXCEPTION, e);
-            }
-        });
+        executor.shutdown();
+        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
 
         System.out.println(moviesSet.stream().count());
     }
