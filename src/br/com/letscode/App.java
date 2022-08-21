@@ -31,6 +31,15 @@ public class App {
 
     private static final String INTERRUPTED_EXCEPTION_MESSAGE = "Error while processing a file";
 
+    private static void waitForThreadsToFinish(ThreadPoolExecutor threadPoolExecutor) {
+        threadPoolExecutor.shutdown();
+        try {
+            threadPoolExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(INTERRUPTED_EXCEPTION_MESSAGE, e);
+        }
+    }
+
     private static Set<Movie> loadFilesInMemory() {
         Set<Movie> moviesSet = Collections.synchronizedSet(new HashSet<>());
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(THREAD_POOL_SIZE);
@@ -45,13 +54,7 @@ public class App {
                             FILES_WITH_HEADER.contains(fileName)));
                 });
 
-        // wait for all threads to finish
-        executor.shutdown();
-        try {
-            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(INTERRUPTED_EXCEPTION_MESSAGE, e);
-        }
+        waitForThreadsToFinish(executor);
 
         return moviesSet;
     }
@@ -72,18 +75,21 @@ public class App {
         Set<Movie> moviesSet = loadFilesInMemory();
 
         FileUtils.createFolderIfNotExists(OUTPUT_FOLDER_PATH);
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
-        writeMovieStreamToFile(
+        executor.execute(() -> writeMovieStreamToFile(
                 moviesSet.stream()
                         .filter(movie -> movie.getGenre().contains("Horror"))
                         .sorted()
                         .sorted((m1, m2) -> m2.getRating().compareTo(m1.getRating()))
                         .limit(20),
                 FileUtils.getFullFilePath(OUTPUT_FOLDER_PATH, BEST_HORROR_FILE_NAME),
-                true);
+                true));
 
         // TODO: create a file for each year with the best 50 movies of each year
 
         // TODO: create a file with the processing time
+
+        waitForThreadsToFinish(executor);
     }
 }
