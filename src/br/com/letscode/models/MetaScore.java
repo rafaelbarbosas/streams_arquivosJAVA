@@ -28,6 +28,6 @@ public class MetaScore extends UnsignedInteger {
 
     @Override
     public String toString() {
-        return "MetaScore [value=" + super.getValue() + "]";
+        return super.toString();
     }
 }

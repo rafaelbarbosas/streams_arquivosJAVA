@@ -6,7 +6,9 @@ import java.time.Year;
 import java.util.List;
 import java.util.Set;
 
-public class Movie {
+import br.com.letscode.utils.StringUtils;
+
+public class Movie implements Comparable<Movie> {
     private UnsignedInteger rank;
     private String title;
     private Set<String> genre;
@@ -162,10 +164,39 @@ public class Movie {
     }
 
     @Override
+    public int compareTo(Movie o) {
+        return Integer.valueOf(rank.getValue()).compareTo(o.getRank().getValue());
+    }
+
+    public static String getCsvHeader() {
+        return "Rank,Title,Genre,Description,Director,Actors,Year,Runtime (Minutes),Rating,Votes,Revenue (Millions),Metascore";
+    }
+
+    @Override
     public String toString() {
-        return "Movie [actors=" + actors + ", description=" + description + ", directors=" + directors + ", genre="
-                + genre + ", metascore=" + metascore + ", rank=" + rank + ", rating=" + rating + ", revenue=" + revenue
-                + ", runtime=" + runtime + ", title=" + title + ", votes=" + votes + ", year=" + year + "]";
+        return rank
+                + ","
+                + StringUtils.surroundIfContains(title, "\"", ",")
+                + ","
+                + StringUtils.getCsvRepresentation(genre, true)
+                + ","
+                + StringUtils.surroundIfContains(description, "\"", ",")
+                + ","
+                + StringUtils.getCsvRepresentation(directors)
+                + ","
+                + StringUtils.getCsvRepresentation(actors, true)
+                + ","
+                + year
+                + ","
+                + runtime.toMinutes()
+                + ","
+                + rating
+                + ","
+                + votes
+                + ","
+                + (revenue != null ? revenue.divide(REVENUE_MULTIPLIER) : "")
+                + ","
+                + (metascore != null ? metascore : "");
     }
 
     public static class Builder {

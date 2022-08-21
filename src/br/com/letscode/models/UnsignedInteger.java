@@ -53,6 +53,6 @@ public class UnsignedInteger extends Number {
 
     @Override
     public String toString() {
-        return "UnsignedInteger [value=" + value + "]";
+        return String.valueOf(value);
     }
 }
