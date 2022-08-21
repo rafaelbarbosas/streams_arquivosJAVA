@@ -2,6 +2,10 @@ package br.com.letscode;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -22,6 +26,7 @@ public class App {
     private static final String OUTPUT_FOLDER_PATH = FileUtils.getFullFilePath("output");
     private static final String BEST_HORROR_FILE_NAME = "best_horror.csv";
     private static final String BEST_OF_YEAR_FILE_NAME = "best_of_year_%s.csv";
+    private static final String PROCESSING_TIME_FILE_NAME = "processing_time.csv";
 
     private static final String FILES_CHAR_SET = "UTF-8";
 
@@ -30,6 +35,13 @@ public class App {
     private static final int THREAD_POOL_SIZE = 4;
 
     private static final String INTERRUPTED_EXCEPTION_MESSAGE = "Error while processing a file";
+
+    private static final DateTimeFormatter PROCESSING_TIME_FORMATTER = DateTimeFormatter
+            .ofPattern("dd/MM/yyyy HH:mm:ss.SSS").withZone(ZoneId.systemDefault());
+    private static final String PROCESSING_TIME_FILE_MODEL = "Início processamento: %s" + System.lineSeparator()
+            + "Fim processamento: %s" + System.lineSeparator()
+            + "Tempo em milissegundos: %s milissegundos" + System.lineSeparator()
+            + "Tempo em segundos: %s segundos";
 
     private static void waitForThreadsToFinish(ThreadPoolExecutor threadPoolExecutor) {
         threadPoolExecutor.shutdown();
@@ -77,6 +89,9 @@ public class App {
         FileUtils.createFolderIfNotExists(OUTPUT_FOLDER_PATH);
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
+        final Instant startTime = Instant.now();
+
+        // best horror movies
         executor.execute(() -> writeMovieStreamToFile(
                 moviesSet.stream()
                         .filter(movie -> movie.getGenre().contains("Horror"))
@@ -86,10 +101,38 @@ public class App {
                 FileUtils.getFullFilePath(OUTPUT_FOLDER_PATH, BEST_HORROR_FILE_NAME),
                 true));
 
-        // TODO: create a file for each year with the best 50 movies of each year
-
-        // TODO: create a file with the processing time
+        // best movies of each year
+        moviesSet.stream()
+                .map(movie -> movie.getYear())
+                .distinct()
+                .forEach(year -> executor.execute(() -> writeMovieStreamToFile(
+                        moviesSet.stream()
+                                .filter(movie -> movie.getYear().equals(year))
+                                .sorted()
+                                .sorted((m1, m2) -> m2.getRating().compareTo(m1.getRating()))
+                                .limit(50),
+                        FileUtils.getFullFilePath(OUTPUT_FOLDER_PATH, String.format(BEST_OF_YEAR_FILE_NAME, year)),
+                        true)));
 
         waitForThreadsToFinish(executor);
+
+        // processing time
+        final Instant finishTime = Instant.now();
+        final Duration processingTime = Duration.between(startTime, finishTime);
+
+        final String processingTimeFilePath = FileUtils.getFullFilePath(OUTPUT_FOLDER_PATH, PROCESSING_TIME_FILE_NAME);
+        FileUtils.createFileIfNotExists(processingTimeFilePath);
+        FileUtils.writeStreamToFile(
+                String.format(PROCESSING_TIME_FILE_MODEL,
+                        PROCESSING_TIME_FORMATTER.format(startTime),
+                        PROCESSING_TIME_FORMATTER.format(finishTime),
+                        processingTime.toMillis(),
+                        processingTime.getSeconds()).lines(),
+                processingTimeFilePath,
+                FILES_CHAR_SET,
+                false);
+
+        System.out.println("tasks executed: " + executor.getTaskCount());
+        System.out.println("cores used: " + executor.getCorePoolSize());
     }
 }
