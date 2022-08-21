@@ -84,12 +84,12 @@ public class App {
     }
 
     public static void main(String[] args) {
+        final Instant startTime = Instant.now();
+
         Set<Movie> moviesSet = loadFilesInMemory();
 
         FileUtils.createFolderIfNotExists(OUTPUT_FOLDER_PATH);
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(THREAD_POOL_SIZE);
-
-        final Instant startTime = Instant.now();
 
         // best horror movies
         executor.execute(() -> writeMovieStreamToFile(
