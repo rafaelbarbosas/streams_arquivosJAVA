@@ -3,9 +3,12 @@ package br.com.letscode.models;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Year;
+import java.util.List;
 import java.util.Set;
 
-public class Movie {
+import br.com.letscode.utils.StringUtils;
+
+public class Movie implements Comparable<Movie> {
     private UnsignedInteger rank;
     private String title;
     private Set<String> genre;
@@ -161,10 +164,39 @@ public class Movie {
     }
 
     @Override
+    public int compareTo(Movie o) {
+        return Integer.valueOf(rank.getValue()).compareTo(o.getRank().getValue());
+    }
+
+    public static String getCsvHeader() {
+        return "Rank,Title,Genre,Description,Director,Actors,Year,Runtime (Minutes),Rating,Votes,Revenue (Millions),Metascore";
+    }
+
+    @Override
     public String toString() {
-        return "Movie [actors=" + actors + ", description=" + description + ", directors=" + directors + ", genre="
-                + genre + ", metascore=" + metascore + ", rank=" + rank + ", rating=" + rating + ", revenue=" + revenue
-                + ", runtime=" + runtime + ", title=" + title + ", votes=" + votes + ", year=" + year + "]";
+        return rank
+                + ","
+                + StringUtils.surroundIfContains(title, "\"", ",")
+                + ","
+                + StringUtils.getCsvRepresentation(genre, true)
+                + ","
+                + StringUtils.surroundIfContains(description, "\"", ",")
+                + ","
+                + StringUtils.getCsvRepresentation(directors)
+                + ","
+                + StringUtils.getCsvRepresentation(actors, true)
+                + ","
+                + year
+                + ","
+                + runtime.toMinutes()
+                + ","
+                + rating
+                + ","
+                + votes
+                + ","
+                + (revenue != null ? revenue.divide(REVENUE_MULTIPLIER) : "")
+                + ","
+                + (metascore != null ? metascore : "");
     }
 
     public static class Builder {
@@ -247,5 +279,49 @@ public class Movie {
             this.validate();
             return movie;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Movie fromCsvFileEntry(List<String> movieData) {
+        MoviesFilePropertiesEnum type;
+        Builder builder = new Builder();
+
+        type = MoviesFilePropertiesEnum.RANK;
+        builder.withRank((UnsignedInteger) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.TITLE;
+        builder.withTitle((String) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.GENRE;
+        builder.withGenre((Set<String>) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.DESCRIPTION;
+        builder.withDescription((String) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.DIRECTORS;
+        builder.withDirectors((Set<String>) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.ACTORS;
+        builder.withActors((Set<String>) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.YEAR;
+        builder.withYear((Year) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.RUNTIME;
+        builder.withRuntime((Duration) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.RATING;
+        builder.withRating((Float) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.VOTES;
+        builder.withVotes((UnsignedInteger) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.REVENUE;
+        builder.withRevenue((BigDecimal) type.convert(movieData.get(type.getIndex())));
+
+        type = MoviesFilePropertiesEnum.METASCORE;
+        builder.withMetaScore((MetaScore) type.convert(movieData.get(type.getIndex())));
+
+        return builder.build();
     }
 }

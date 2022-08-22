@@ -1,7 +1,6 @@
 package br.com.letscode.models;
 
 public class MetaScore extends UnsignedInteger {
-
     public MetaScore(int value) {
         super(value);
         if (value > 100) {
@@ -18,7 +17,17 @@ public class MetaScore extends UnsignedInteger {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
     public String toString() {
-        return "MetaScore [value=" + super.getValue() + "]";
+        return super.toString();
     }
 }
