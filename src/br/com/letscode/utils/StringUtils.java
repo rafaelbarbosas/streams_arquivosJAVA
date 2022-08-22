@@ -16,11 +16,13 @@ public abstract class StringUtils {
     }
 
     public static String getCsvRepresentation(Set<String> set, boolean includeQuotes) {
-        return getCsvRepresentation(set.stream().sorted().toList(), includeQuotes);
+        return getCsvRepresentation(set.stream()
+                .sorted()
+                .collect(Collectors.toList()), includeQuotes);
     }
 
     public static String getCsvRepresentation(Set<String> set) {
-        return getCsvRepresentation(set.stream().sorted().toList(), false);
+        return getCsvRepresentation(set, false);
     }
 
     public static String surroundIfContains(String text, String surroundString, String containedString) {

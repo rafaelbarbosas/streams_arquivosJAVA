@@ -1,4 +1,4 @@
-package br.com.letscode;
+package br.com.letscode.dao;
 
 import java.io.IOException;
 import java.nio.file.Files;

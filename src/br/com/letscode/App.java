@@ -15,6 +15,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+import br.com.letscode.dao.MovieReader;
 import br.com.letscode.models.Movie;
 import br.com.letscode.utils.FileUtils;
 
@@ -30,9 +31,8 @@ public class App {
 
     private static final String FILES_CHAR_SET = "UTF-8";
 
-    // if you want to use all available processors, use this value
-    // Runtime.getRuntime().availableProcessors();
-    private static final int THREAD_POOL_SIZE = 4;
+    // using the same number of available processors as the number of threads
+    private static final int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors();
 
     private static final String INTERRUPTED_EXCEPTION_MESSAGE = "Error while processing a file";
 
@@ -84,6 +84,7 @@ public class App {
     }
 
     public static void main(String[] args) {
+        System.out.println("starting program using " + THREAD_POOL_SIZE + " threads...");
         final Instant startTime = Instant.now();
 
         Set<Movie> moviesSet = loadFilesInMemory();
@@ -132,7 +133,11 @@ public class App {
                 FILES_CHAR_SET,
                 false);
 
-        System.out.println("tasks executed: " + executor.getTaskCount());
-        System.out.println("cores used: " + executor.getCorePoolSize());
+        System.out.println("program finished. "
+                + "executed "
+                + executor.getTaskCount()
+                + " tasks using "
+                + executor.getCorePoolSize()
+                + " threads");
     }
 }
