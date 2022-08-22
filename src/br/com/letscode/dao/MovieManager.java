@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import br.com.letscode.models.Movie;
-import br.com.letscode.utils.FileUtils;
+import br.com.letscode.model.movie.Movie;
+import br.com.letscode.util.FileUtils;
 
 public class MovieManager {
     private static MovieManager instance;

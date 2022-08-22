@@ -1,4 +1,4 @@
-package br.com.letscode.models;
+package br.com.letscode.model.number;
 
 public class UnsignedInteger extends Number {
     private int value;

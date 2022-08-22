@@ -9,14 +9,20 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import br.com.letscode.dao.MovieManager;
-import br.com.letscode.models.Movie;
-import br.com.letscode.utils.FileUtils;
-import br.com.letscode.utils.ThreadUtils;
+import br.com.letscode.model.movie.Movie;
+import br.com.letscode.model.system.Navigation;
+import br.com.letscode.screens.ExitScreen;
+import br.com.letscode.screens.ScreenInterface;
+import br.com.letscode.screens.ScreensList;
+import br.com.letscode.util.ConsoleUtils;
+import br.com.letscode.util.FileUtils;
+import br.com.letscode.util.ThreadUtils;
 
 public class App {
 
@@ -60,7 +66,7 @@ public class App {
     }
 
     private static void proccessMovies() {
-        System.out.println("starting program using " + THREAD_POOL_SIZE + " threads...");
+        System.out.println("initializing movies processing using " + THREAD_POOL_SIZE + " threads...");
         final Instant startTime = Instant.now();
 
         Set<Movie> moviesSet = loadFilesInMemory();
@@ -114,7 +120,7 @@ public class App {
                 FILES_CHAR_SET,
                 false);
 
-        System.out.println("program finished. "
+        System.out.println("movies processing finished. "
                 + "executed "
                 + executor.getTaskCount()
                 + " tasks using "
@@ -122,7 +128,23 @@ public class App {
                 + " threads");
     }
 
+    private static void startInterface() {
+        ConsoleUtils.clearScreen();
+
+        Navigation navigate = new Navigation(ScreensList.START, null);
+        ScreenInterface screen;
+        Scanner scanner = new Scanner(System.in);
+        while (navigate.getScreen() != ScreensList.EXIT) {
+            screen = navigate.getScreen().createInstance();
+            navigate = screen.run(scanner, navigate.getArgs());
+        }
+        scanner.close();
+        screen = new ExitScreen();
+        screen.run(scanner, navigate.getArgs());
+    }
+
     public static void main(String[] args) {
         proccessMovies();
+        startInterface();
     }
 }

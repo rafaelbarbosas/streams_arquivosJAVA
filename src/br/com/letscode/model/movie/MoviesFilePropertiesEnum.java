@@ -1,11 +1,12 @@
-package br.com.letscode.models;
+package br.com.letscode.model.movie;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Year;
 import java.util.function.Function;
 
-import br.com.letscode.utils.FunctionUtils;
+import br.com.letscode.model.number.UnsignedInteger;
+import br.com.letscode.util.FunctionUtils;
 
 public enum MoviesFilePropertiesEnum {
     RANK(0,

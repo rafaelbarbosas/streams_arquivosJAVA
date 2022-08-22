@@ -1,4 +1,6 @@
-package br.com.letscode.models;
+package br.com.letscode.model.movie;
+
+import br.com.letscode.model.number.UnsignedInteger;
 
 public class MetaScore extends UnsignedInteger {
     public MetaScore(int value) {
