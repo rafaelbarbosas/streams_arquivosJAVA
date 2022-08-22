@@ -14,7 +14,9 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import br.com.letscode.dao.MovieDAO;
 import br.com.letscode.dao.MovieManager;
+import br.com.letscode.database.MemoryDatabase;
 import br.com.letscode.model.movie.Movie;
 import br.com.letscode.model.system.Navigation;
 import br.com.letscode.screens.ExitScreen;
@@ -145,6 +147,10 @@ public class App {
 
     public static void main(String[] args) {
         proccessMovies();
+
+        // load files in memory again so this extra part of the code doesn't have any
+        // effect on the main code
+        MovieDAO.setDatabase(new MemoryDatabase<Movie>(loadFilesInMemory()));
         startInterface();
     }
 }
