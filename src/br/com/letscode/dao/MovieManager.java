@@ -8,20 +8,21 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import br.com.letscode.models.Movie;
+import br.com.letscode.utils.FileUtils;
 
-public class MovieReader {
-    private static MovieReader instance;
+public class MovieManager {
+    private static MovieManager instance;
 
     private static final String FILE_OPENING_EXCEPTION_MSG = "Ocorreu um erro ao tentar abrir o arquivo %s";
 
     private static final String CSV_SEPARATOR_REGEX = ",(?=([^\"]|\"[^\"]*\")*$)";
 
-    private MovieReader() {
+    private MovieManager() {
     }
 
-    public static MovieReader getInstance() {
+    public static MovieManager getInstance() {
         if (instance == null) {
-            instance = new MovieReader();
+            instance = new MovieManager();
         }
         return instance;
     }
@@ -45,5 +46,18 @@ public class MovieReader {
 
     public void loadFilesInSet(Set<Movie> set, Path filePath) {
         loadFilesInSet(set, filePath, false);
+    }
+
+    public static void writeMovieStreamToFile(Stream<?> stream, String filePath, String fileCharSet,
+            boolean includeHeader) {
+        if (includeHeader) {
+            stream = Stream.concat(Stream.of(Movie.getCsvHeader()), stream);
+        }
+        FileUtils.createFileIfNotExists(filePath);
+        FileUtils.writeStreamToFile(
+                stream,
+                filePath,
+                fileCharSet,
+                false);
     }
 }

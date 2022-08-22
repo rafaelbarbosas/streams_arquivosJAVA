@@ -12,12 +12,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
-import br.com.letscode.dao.MovieReader;
+import br.com.letscode.dao.MovieManager;
 import br.com.letscode.models.Movie;
 import br.com.letscode.utils.FileUtils;
+import br.com.letscode.utils.ThreadUtils;
 
 public class App {
 
@@ -34,23 +33,12 @@ public class App {
     // using the same number of available processors as the number of threads
     private static final int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors();
 
-    private static final String INTERRUPTED_EXCEPTION_MESSAGE = "Error while processing a file";
-
     private static final DateTimeFormatter PROCESSING_TIME_FORMATTER = DateTimeFormatter
             .ofPattern("dd/MM/yyyy HH:mm:ss.SSS").withZone(ZoneId.systemDefault());
     private static final String PROCESSING_TIME_FILE_MODEL = "Início processamento: %s" + System.lineSeparator()
             + "Fim processamento: %s" + System.lineSeparator()
             + "Tempo em milissegundos: %s milissegundos" + System.lineSeparator()
             + "Tempo em segundos: %s segundos";
-
-    private static void waitForThreadsToFinish(ThreadPoolExecutor threadPoolExecutor) {
-        threadPoolExecutor.shutdown();
-        try {
-            threadPoolExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(INTERRUPTED_EXCEPTION_MESSAGE, e);
-        }
-    }
 
     private static Set<Movie> loadFilesInMemory() {
         Set<Movie> moviesSet = Collections.synchronizedSet(new HashSet<>());
@@ -61,29 +49,17 @@ public class App {
         FileUtils.listFilesInDirectory(directory).stream()
                 .forEach(fileName -> {
                     String filePath = FileUtils.getFullFilePath(MOVIES_FOLDER_PATH, fileName);
-                    executor.execute(() -> MovieReader.getInstance().loadFilesInSet(moviesSet,
+                    executor.execute(() -> MovieManager.getInstance().loadFilesInSet(moviesSet,
                             Paths.get(filePath),
                             FILES_WITH_HEADER.contains(fileName)));
                 });
 
-        waitForThreadsToFinish(executor);
+        ThreadUtils.waitForThreadsToFinish(executor);
 
         return moviesSet;
     }
 
-    private static void writeMovieStreamToFile(Stream<?> stream, String filePath, boolean includeHeader) {
-        if (includeHeader) {
-            stream = Stream.concat(Stream.of(Movie.getCsvHeader()), stream);
-        }
-        FileUtils.createFileIfNotExists(filePath);
-        FileUtils.writeStreamToFile(
-                stream,
-                filePath,
-                FILES_CHAR_SET,
-                false);
-    }
-
-    public static void main(String[] args) {
+    private static void proccessMovies() {
         System.out.println("starting program using " + THREAD_POOL_SIZE + " threads...");
         final Instant startTime = Instant.now();
 
@@ -93,35 +69,40 @@ public class App {
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
         // best horror movies
-        executor.execute(() -> writeMovieStreamToFile(
+        executor.execute(() -> MovieManager.writeMovieStreamToFile(
                 moviesSet.stream()
                         .filter(movie -> movie.getGenre().contains("Horror"))
                         .sorted()
                         .sorted((m1, m2) -> m2.getRating().compareTo(m1.getRating()))
                         .limit(20),
                 FileUtils.getFullFilePath(OUTPUT_FOLDER_PATH, BEST_HORROR_FILE_NAME),
+                FILES_CHAR_SET,
                 true));
 
         // best movies of each year
         moviesSet.stream()
                 .map(movie -> movie.getYear())
                 .distinct()
-                .forEach(year -> executor.execute(() -> writeMovieStreamToFile(
+                .forEach(year -> executor.execute(() -> MovieManager.writeMovieStreamToFile(
                         moviesSet.stream()
                                 .filter(movie -> movie.getYear().equals(year))
                                 .sorted()
-                                .sorted((m1, m2) -> m2.getRating().compareTo(m1.getRating()))
+                                .sorted((m1, m2) -> m2.getRating()
+                                        .compareTo(m1.getRating()))
                                 .limit(50),
-                        FileUtils.getFullFilePath(OUTPUT_FOLDER_PATH, String.format(BEST_OF_YEAR_FILE_NAME, year)),
+                        FileUtils.getFullFilePath(OUTPUT_FOLDER_PATH,
+                                String.format(BEST_OF_YEAR_FILE_NAME, year)),
+                        FILES_CHAR_SET,
                         true)));
 
-        waitForThreadsToFinish(executor);
+        ThreadUtils.waitForThreadsToFinish(executor);
 
         // processing time
         final Instant finishTime = Instant.now();
         final Duration processingTime = Duration.between(startTime, finishTime);
 
-        final String processingTimeFilePath = FileUtils.getFullFilePath(OUTPUT_FOLDER_PATH, PROCESSING_TIME_FILE_NAME);
+        final String processingTimeFilePath = FileUtils.getFullFilePath(OUTPUT_FOLDER_PATH,
+                PROCESSING_TIME_FILE_NAME);
         FileUtils.createFileIfNotExists(processingTimeFilePath);
         FileUtils.writeStreamToFile(
                 String.format(PROCESSING_TIME_FILE_MODEL,
@@ -139,5 +120,9 @@ public class App {
                 + " tasks using "
                 + executor.getCorePoolSize()
                 + " threads");
+    }
+
+    public static void main(String[] args) {
+        proccessMovies();
     }
 }
