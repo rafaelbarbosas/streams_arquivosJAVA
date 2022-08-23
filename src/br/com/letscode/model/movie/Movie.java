@@ -1,4 +1,4 @@
-package br.com.letscode.models;
+package br.com.letscode.model.movie;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -6,7 +6,8 @@ import java.time.Year;
 import java.util.List;
 import java.util.Set;
 
-import br.com.letscode.utils.StringUtils;
+import br.com.letscode.model.number.UnsignedInteger;
+import br.com.letscode.util.StringUtils;
 
 public class Movie implements Comparable<Movie> {
     private UnsignedInteger rank;
@@ -298,7 +299,7 @@ public class Movie implements Comparable<Movie> {
         type = MoviesFilePropertiesEnum.DESCRIPTION;
         builder.withDescription((String) type.convert(movieData.get(type.getIndex())));
 
-        type = MoviesFilePropertiesEnum.DIRECTORS;
+        type = MoviesFilePropertiesEnum.DIRECTOR;
         builder.withDirectors((Set<String>) type.convert(movieData.get(type.getIndex())));
 
         type = MoviesFilePropertiesEnum.ACTORS;

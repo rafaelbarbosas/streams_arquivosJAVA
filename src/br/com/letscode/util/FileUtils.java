@@ -1,4 +1,4 @@
-package br.com.letscode.utils;
+package br.com.letscode.util;
 
 import java.io.BufferedWriter;
 import java.io.File;

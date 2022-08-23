@@ -1,10 +1,10 @@
-package br.com.letscode.utils;
+package br.com.letscode.util;
 
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public abstract class ThreadUtils {
-    private static final String INTERRUPTED_EXCEPTION_MESSAGE = "Error while processing a file";
+    private static final String INTERRUPTED_EXCEPTION_MESSAGE = "Error while waiting for a thread to finish";
 
     public static void waitForThreadsToFinish(ThreadPoolExecutor threadPoolExecutor) {
         threadPoolExecutor.shutdown();

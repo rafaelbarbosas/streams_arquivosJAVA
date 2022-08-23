@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import br.com.letscode.models.Movie;
-import br.com.letscode.utils.FileUtils;
+import br.com.letscode.model.movie.Movie;
+import br.com.letscode.util.FileUtils;
 
 public class MovieManager {
     private static MovieManager instance;
 
-    private static final String FILE_OPENING_EXCEPTION_MSG = "Ocorreu um erro ao tentar abrir o arquivo %s";
+    private static final String FILE_OPENING_EXCEPTION_MSG = "Error while opening the file %s";
 
     private static final String CSV_SEPARATOR_REGEX = ",(?=([^\"]|\"[^\"]*\")*$)";
 

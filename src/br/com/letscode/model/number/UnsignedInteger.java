@@ -1,6 +1,6 @@
-package br.com.letscode.models;
+package br.com.letscode.model.number;
 
-public class UnsignedInteger extends Number {
+public class UnsignedInteger extends Number implements Comparable<UnsignedInteger> {
     private int value;
 
     public UnsignedInteger(int value) {
@@ -54,5 +54,10 @@ public class UnsignedInteger extends Number {
     @Override
     public String toString() {
         return String.valueOf(value);
+    }
+
+    @Override
+    public int compareTo(UnsignedInteger o) {
+        return Integer.valueOf(value).compareTo(o.getValue());
     }
 }

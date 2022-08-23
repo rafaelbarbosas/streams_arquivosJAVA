@@ -9,26 +9,34 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import br.com.letscode.dao.MovieDAO;
 import br.com.letscode.dao.MovieManager;
-import br.com.letscode.models.Movie;
-import br.com.letscode.utils.FileUtils;
-import br.com.letscode.utils.ThreadUtils;
+import br.com.letscode.database.MemoryDatabase;
+import br.com.letscode.model.movie.Movie;
+import br.com.letscode.model.system.Navigation;
+import br.com.letscode.screens.ExitScreen;
+import br.com.letscode.screens.ScreenInterface;
+import br.com.letscode.screens.ScreensList;
+import br.com.letscode.util.ConsoleUtils;
+import br.com.letscode.util.FileUtils;
+import br.com.letscode.util.ThreadUtils;
 
 public class App {
 
     private static final String MOVIES_FOLDER_PATH = FileUtils.getFullFilePath("data");
     private static final List<String> FILES_WITH_HEADER = List.of("movies1.csv");
 
-    private static final String OUTPUT_FOLDER_PATH = FileUtils.getFullFilePath("output");
+    public static final String OUTPUT_FOLDER_PATH = FileUtils.getFullFilePath("output");
     private static final String BEST_HORROR_FILE_NAME = "best_horror.csv";
     private static final String BEST_OF_YEAR_FILE_NAME = "best_of_year_%s.csv";
     private static final String PROCESSING_TIME_FILE_NAME = "processing_time.csv";
 
-    private static final String FILES_CHAR_SET = "UTF-8";
+    public static final String FILES_CHAR_SET = "UTF-8";
 
     // using the same number of available processors as the number of threads
     private static final int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors();
@@ -60,7 +68,7 @@ public class App {
     }
 
     private static void proccessMovies() {
-        System.out.println("starting program using " + THREAD_POOL_SIZE + " threads...");
+        System.out.println("initializing movies processing using " + THREAD_POOL_SIZE + " threads...");
         final Instant startTime = Instant.now();
 
         Set<Movie> moviesSet = loadFilesInMemory();
@@ -114,7 +122,7 @@ public class App {
                 FILES_CHAR_SET,
                 false);
 
-        System.out.println("program finished. "
+        System.out.println("movies processing finished. "
                 + "executed "
                 + executor.getTaskCount()
                 + " tasks using "
@@ -122,7 +130,27 @@ public class App {
                 + " threads");
     }
 
+    private static void startInterface() {
+        ConsoleUtils.clearScreen();
+
+        Navigation navigate = new Navigation(ScreensList.START, null);
+        ScreenInterface screen;
+        Scanner scanner = new Scanner(System.in);
+        while (navigate.getScreen() != ScreensList.EXIT) {
+            screen = navigate.getScreen().createInstance();
+            navigate = screen.run(scanner, navigate.getArgs());
+        }
+        scanner.close();
+        screen = new ExitScreen();
+        screen.run(scanner, navigate.getArgs());
+    }
+
     public static void main(String[] args) {
         proccessMovies();
+
+        // load files in memory again so this extra part of the code doesn't have any
+        // effect on the main code
+        MovieDAO.setDatabase(new MemoryDatabase<Movie>(loadFilesInMemory()));
+        startInterface();
     }
 }
