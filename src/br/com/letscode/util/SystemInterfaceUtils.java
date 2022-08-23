@@ -1,9 +1,11 @@
 package br.com.letscode.util;
 
 import java.util.Scanner;
+import java.util.stream.Stream;
 
 import br.com.letscode.exception.ExitSignalException;
 import br.com.letscode.exception.GoBackSignalException;
+import br.com.letscode.model.movie.Movie;
 import br.com.letscode.model.system.ConsolePosition;
 import br.com.letscode.model.system.Message;
 
@@ -38,7 +40,7 @@ public class SystemInterfaceUtils {
     public static final int DEFAULT_LINES_PER_PAGE = 10;
 
     public static String getHeader(String screenName, ConsolePosition pos) {
-        final String HEADER_START_TEXT = "Sommus Market";
+        final String HEADER_START_TEXT = "Sommus Cine";
         final String time = TimeUtils.nowString();
         final int consoleMiddleRow = pos.getColumn() / 2;
         final int screenNameStartPadding = consoleMiddleRow - HEADER_START_TEXT.length() - (screenName.length() / 2);
@@ -121,7 +123,7 @@ public class SystemInterfaceUtils {
         ConsoleUtils.skipLines(1);
 
         System.out.print(header + ConsoleUtils.NEW_LINE);
-        ConsoleUtils.skipLines(2);
+        ConsoleUtils.skipLines(1);
 
         int linesPerPage = (int) Math.ceil((double) content.split("\n").length / (double) totalPages);
         int startLine = linesPerPage * (currentPage - 1);
@@ -137,6 +139,23 @@ public class SystemInterfaceUtils {
         ConsoleUtils.skipLines(1);
         System.out.print(StringUtils.centralize("Página " + currentPage + "/" + totalPages + ConsoleUtils.NEW_LINE,
                 consoleSize.getColumn()));
+    }
+
+    private static String getMovieEntry(Movie movie) {
+        return "#"
+                + movie.getRank()
+                + " "
+                + movie.getTitle()
+                + " - "
+                + movie.getYear()
+                + ", Rating: "
+                + movie.getRating();
+    }
+
+    public static String getMoviesList(Stream<Movie> movies, int lineWidth) {
+        return movies.map(movie -> StringUtils.centralize(getMovieEntry(movie), lineWidth))
+                .reduce("",
+                        (movieEntry, movieList) -> movieEntry.concat(ConsoleUtils.NEW_LINE).concat(movieList));
     }
 
     public static String getUserInput(Scanner scanner, ConsolePosition consoleSize, String message)

@@ -17,7 +17,7 @@ public class ConsoleUtils {
     static final int DEFAULT_SPEED = 1200;
 
     public static final String ESC = "\033";
-    public static final String NEW_LINE = String.format("%n");
+    public static final String NEW_LINE = System.lineSeparator();
 
     public enum Attribute {
         RESET(0),

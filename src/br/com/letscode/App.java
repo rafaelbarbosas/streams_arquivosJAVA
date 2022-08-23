@@ -31,12 +31,12 @@ public class App {
     private static final String MOVIES_FOLDER_PATH = FileUtils.getFullFilePath("data");
     private static final List<String> FILES_WITH_HEADER = List.of("movies1.csv");
 
-    private static final String OUTPUT_FOLDER_PATH = FileUtils.getFullFilePath("output");
+    public static final String OUTPUT_FOLDER_PATH = FileUtils.getFullFilePath("output");
     private static final String BEST_HORROR_FILE_NAME = "best_horror.csv";
     private static final String BEST_OF_YEAR_FILE_NAME = "best_of_year_%s.csv";
     private static final String PROCESSING_TIME_FILE_NAME = "processing_time.csv";
 
-    private static final String FILES_CHAR_SET = "UTF-8";
+    public static final String FILES_CHAR_SET = "UTF-8";
 
     // using the same number of available processors as the number of threads
     private static final int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors();

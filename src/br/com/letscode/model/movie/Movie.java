@@ -299,7 +299,7 @@ public class Movie implements Comparable<Movie> {
         type = MoviesFilePropertiesEnum.DESCRIPTION;
         builder.withDescription((String) type.convert(movieData.get(type.getIndex())));
 
-        type = MoviesFilePropertiesEnum.DIRECTORS;
+        type = MoviesFilePropertiesEnum.DIRECTOR;
         builder.withDirectors((Set<String>) type.convert(movieData.get(type.getIndex())));
 
         type = MoviesFilePropertiesEnum.ACTORS;
